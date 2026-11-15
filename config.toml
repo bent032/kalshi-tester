@@ -1,0 +1,30 @@
+# ALL strategy thresholds live here (spec item 10). Nothing is hardcoded elsewhere.
+# Phase 1 (read-only) only uses [market] and [timing]; the rest is used from Phase 3.
+
+[market]
+series_ticker = "KXBTC15M"          # verified against the live API at startup in odds_check
+default_env   = "demo"              # "demo" or "prod". Real-money orders also need --live + typed confirmation (Phase 3).
+
+[timing]
+start_seconds_before_close  = 180   # first check at 3:00 remaining
+recheck_interval_seconds    = 15    # re-check cadence
+cutoff_seconds_before_close = 30    # stop checking at this point; skip market if no side qualified
+fill_timeout_seconds        = 5     # cancel unfilled limit order after this long
+
+[strategy]
+entry_threshold_cents = 81          # buy a side if its ASK >= this
+position_fraction     = 0.10        # stake = 10% of available balance at trade time
+
+[safety]
+max_daily_loss_fraction = 0.15      # of starting-of-day balance (00:00 America/New_York)
+max_consecutive_losses  = 3
+stale_data_seconds      = 10
+max_api_errors_in_row   = 3
+kill_switch_file        = "KILL"    # create this file to stop the bot immediately
+
+[fees]
+# Taker fee = ceil_to_cent(taker_rate * contracts * price * (1 - price)) * fee_multiplier
+# Kalshi publishes this per series (fee_type / fee_multiplier); Phase 3 reads those from the API
+# and fails loudly if they disagree with these values. Single place to change it.
+taker_rate     = 0.07
+fee_multiplier = 1.0
